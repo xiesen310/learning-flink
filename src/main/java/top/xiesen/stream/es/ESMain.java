@@ -1,7 +1,6 @@
 package top.xiesen.stream.es;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.utils.ParameterTool;
@@ -14,7 +13,7 @@ import org.apache.http.HttpHost;
 import org.elasticsearch.client.Requests;
 import org.elasticsearch.common.xcontent.XContentType;
 import top.xiesen.batch.WordCountData;
-import top.xiesen.stream.WordCount;
+import top.xiesen.stream.WordCountStream;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,7 +40,7 @@ public class ESMain {
         }
 
         // 数据处理
-        DataStream<Tuple2<String, Integer>> counts = dataStream.flatMap(new WordCount.Tokenizer())
+        DataStream<Tuple2<String, Integer>> counts = dataStream.flatMap(new WordCountStream.Tokenizer())
                 .keyBy(0)
                 .sum(1);
 

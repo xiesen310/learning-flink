@@ -11,7 +11,7 @@ import top.xiesen.batch.WordCountData;
 /**
  * 流处理-单词词频统计
  */
-public class WordCount {
+public class WordCountStream {
     public static void main(String[] args) throws Exception {
         // 解析命令行参数
         ParameterTool params = ParameterTool.fromArgs(args);

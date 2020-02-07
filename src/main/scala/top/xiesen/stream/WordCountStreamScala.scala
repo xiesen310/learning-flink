@@ -5,7 +5,7 @@ import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironm
 import top.xiesen.batch.WordCountData
 import org.apache.flink.streaming.api.scala._
 
-object WordCountScala {
+object WordCountStreamScala {
 
   def main(args: Array[String]): Unit = {
     // 解析参数
