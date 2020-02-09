@@ -12,33 +12,35 @@ import org.apache.flink.streaming.connectors.redis.common.mapper.RedisCommandDes
 import org.apache.flink.streaming.connectors.redis.common.mapper.RedisMapper;
 
 /**
- * @Description 二次开发
- * @className top.xiesen.stream.sink.MyRedisSink
+ * @Description 接收 socket 数据，把数据保存到 redis list 中
+ * @className top.xiesen.stream.sink.StreamingDemoToRedis
  * @Author 谢森
  * @Email xiesen310@163.com
- * @Date 2020/2/7 19:42
+ * @Date 2020/2/9 22:23
  */
-public class MyRedisSink {
+public class StreamingDemoToRedis {
     public static void main(String[] args) throws Exception {
-        // 获取执行参数
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        DataStreamSource<String> dataStream = env.socketTextStream("192.168.0.106", 9999, "\n");
+        DataStreamSource<String> text = env.socketTextStream("192.168.0.106", 9999, "\n");
 
-        DataStream<Tuple2<String, String>> redisWordsData = dataStream.map(new MapFunction<String, Tuple2<String, String>>() {
+        // 对数据进行封装 例如: lpush  l_words word
+        DataStream<Tuple2<String, String>> tupleData = text.map(new MapFunction<String, Tuple2<String, String>>() {
             @Override
             public Tuple2<String, String> map(String value) throws Exception {
-                return new Tuple2<>("redis_words", value);
+                return new Tuple2<>("l_words", value);
             }
         });
 
-        FlinkJedisPoolConfig build =
-                new FlinkJedisPoolConfig.Builder().setHost("192.168.0.106").setPort(6379).build();
+        // 创建 redis 配置
+        FlinkJedisPoolConfig config = new FlinkJedisPoolConfig.Builder().setHost("192.168.0.106").setPort(6379).build();
 
-        RedisSink<Tuple2<String, String>> redisSink = new RedisSink<>(build, new MyRedisMapper());
+        // 创建 redis sink
+        RedisSink<Tuple2<String, String>> redisSink = new RedisSink<>(config, new MyRedisMapper());
 
-        redisWordsData.addSink(redisSink);
+        tupleData.addSink(redisSink);
 
-        env.execute("MyRedisSink");
+        String jobName = StreamingDemoToRedis.class.getSimpleName();
+        env.execute(jobName);
     }
 
     public static class MyRedisMapper implements RedisMapper<Tuple2<String, String>> {
@@ -48,14 +50,27 @@ public class MyRedisSink {
             return new RedisCommandDescription(RedisCommand.LPUSH);
         }
 
+        /**
+         * 从接收到的数据中获取 key
+         *
+         * @param data
+         * @return
+         */
         @Override
         public String getKeyFromData(Tuple2<String, String> data) {
             return data.f0;
         }
 
+        /**
+         * 从接收到的数据中获取 value
+         *
+         * @param data
+         * @return
+         */
         @Override
         public String getValueFromData(Tuple2<String, String> data) {
             return data.f1;
         }
     }
+
 }
