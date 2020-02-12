@@ -111,6 +111,8 @@ public class StreamingWindowWatermarkWithSideOutputLateData {
                 .window(TumblingEventTimeWindows.of(Time.seconds(3))) // 按照消息的 eventTime分配窗口,和 调用 TimeWindow效果是一样的
                 .sideOutputLateData(outputTag)
                 .apply(new WindowFunction<Tuple2<String, Long>, String, Tuple, TimeWindow>() {
+                    private static final long serialVersionUID = -6924938660799116524L;
+
                     /**
                      * 对 window 内的数据进行排序,保证数据的顺序
                      * @param tuple
