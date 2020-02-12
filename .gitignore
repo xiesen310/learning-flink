@@ -30,7 +30,7 @@ modules
 *.patch
 *.tmp
 logs
-
+dependency-reduced-pom.xml
 # system ignore
 .DS_Store
 Thumbs.db
