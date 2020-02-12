@@ -3,6 +3,7 @@ package top.xiesen.clean;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
+import org.apache.flink.contrib.streaming.state.RocksDBStateBackend;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
@@ -40,6 +41,12 @@ public class DataClean {
         env.getCheckpointConfig().setCheckpointTimeout(10000);
         env.getCheckpointConfig().setMaxConcurrentCheckpoints(1);
         env.getCheckpointConfig().enableExternalizedCheckpoints(CheckpointConfig.ExternalizedCheckpointCleanup.RETAIN_ON_CANCELLATION);
+
+        // 修改并行度
+        env.setParallelism(1);
+
+        // 设置 StateBackend
+        env.setStateBackend(new RocksDBStateBackend("hdfs:///flink/chcekpoints", true));
 
         // 指定 kafka source
         String topic = "allData";
